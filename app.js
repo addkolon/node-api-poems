@@ -1,19 +1,18 @@
 const express = require("express");
-const PoemRouter = require("./PoemRoutes");
-// DONE: Skapa en webserver som lyssnar på PORT 3000
-// den ska ha en registrerade GET route som svara med hello world
+const PoemRoutes = require("./routes/PoemRoutes");
 
 const app = express();
+const PORT = 3001;
+
+// in order to receive json data in req.body
 app.use(express.json());
 
-PORT = 3000;
+app.get("/", (req, res) => res.send("Hello World"));
 
-app.get("/", (req, res) => {
-    res.send("Hello world");
-})
+app.use(PoemRoutes);
 
-// -- ROUTES FOR POEMS --
-app.use(PoemRouter);
+// If anything else was request then respond with this
+app.get("*", (req, res) => res.send("This route is not defined!"));
 
 
-app.listen(PORT, console.log(`Listening on port ${PORT}`));
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
