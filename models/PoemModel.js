@@ -1,53 +1,78 @@
 // TODO: add functions that manipulates data regarding poems
+const { set } = require("express/lib/application");
+const fs = require("fs");
 
-const poemDatabase = [
-    {id: 1, title: "A fire morning", content: "The morning was warm.. too warm. such fire.", author: "Henry"}, 
-{id: 2, title: "A snow morning", content: "The morning was cold.. too cold. such snow.", author: "Henry"},
-{id: 3, title: "A wind morning", content: "The morning was windy.. too wind. such wind.", author: "Henry"}]
+const poemDatabase = [];
+
+function getDatabase() {
+    const dbData = fs.readFileSync("poemDB.json", {encoding: "utf-8"});
+    return JSON.parse(dbData);
+}
+
+function setDatabase(data) {
+    const str = JSON.stringify(data);
+    fs.writeFileSync('poemDB.json', str);
+}
 
 function showAll() {
-    return poemDatabase;
+    const allPoems = getDatabase();
+    return allPoems;
 }
 
 function showOneById(id) {
-    return poemDatabase.find(poem => poem.id === id);
+    const allPoems = getDatabase();
+
+    return allPoems.find(poem => poem.id === id);
 }
 
 function editOneById(newPoem) {
-    if (!newPoem.content || !newPoem.author  || !newPoem.title) {
+    if (!newPoem.content || !newPoem.author || !newPoem.title) {
         return false;
     }
 
-    const poemToEdit = showOneById(newPoem.id);
+    const allPoems = getDatabase();
+    const poemToEdit = allPoems.find(poem => poem.id === newPoem.id);
 
-    // Take content from obj and create new (cloning)
+    // change existing object with new changes
     poemToEdit.title = newPoem.title;
     poemToEdit.content = newPoem.content;
     poemToEdit.author = newPoem.author;
+
+    setDatabase(allPoems);
 
     return poemToEdit;
 }
 
 function create(newPoem) {
-    if (!newPoem.content || !newPoem.author  || !newPoem.title) {
+    if (!newPoem.content || !newPoem.author || !newPoem.title) {
         return false;
     }
 
-    const poemToAdd = {id: poemDatabase.length + 1, title: newPoem.title,  content: newPoem.content, author: newPoem.author};
+    // Read in the database
+    const allPoems = getDatabase();
+    
+    // Add poem to array
+    const poemToAdd = { id: allPoems.length + 1, title: newPoem.title, content: newPoem.content, author: newPoem.author };
+    allPoems.push(poemToAdd);
 
-    poemDatabase.push(poemToAdd);
+    // Set array as new database
+    setDatabase(allPoems);
 
     return poemToAdd;
 }
 
 function remove(id) {
-    const idxToRemove = poemDatabase.findIndex(poem => poem.id === id);
+    const allPoems = getDatabase();
+
+    const idxToRemove = allPoems.findIndex(poem => poem.id === id);
 
     if (idxToRemove < 0) {
         return false;
     }
 
-    const removedPoem = poemDatabase.splice(idxToRemove, 1)[0];
+    const removedPoem = allPoems.splice(idxToRemove, 1)[0];
+
+    setDatabase(allPoems);
 
     return removedPoem;
 }
