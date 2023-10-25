@@ -1,14 +1,27 @@
 // TODO: add functions that handles requests regarding poems
 const PoemModel = require("../models/PoemModel");
+const {userSessions} = require("./UserController");
 
 let requestCounter = 0;
 
 function handleShowAll(req, res) {
     console.log("Request for ShowAll, nr", requestCounter++);
+
+    if (userSessions[username] !== req.query.sessionKey) {
+        console.log("Not authenticated.");
+        return res.status(401).send("Session not valid. Signin first");
+    }
+
     return res.send(PoemModel.showAll());
 }
 
 function handleShowOneById(req, res) {
+
+    if (userSessions[username] !== req.query.sessionKey) {
+        console.log("Not authenticated.");
+        return res.status(401).send("Session not valid. Signin first");
+    }
+
     const idToFind = req.params.id;
 
     console.log(`Request for ShowOneById, with id ${idToFind}, nr`, requestCounter++);
@@ -23,6 +36,11 @@ function handleShowOneById(req, res) {
 }
 
 function handleEditOneById(req, res) {
+
+    if (userSessions[username] !== req.query.sessionKey) {
+        console.log("Not authenticated.");
+        return res.status(401).send("Session not valid. Signin first");
+    }
     
     const newPoem = {id: Number(req.params.id), ...req.body};
 
@@ -38,6 +56,12 @@ function handleEditOneById(req, res) {
 }
 
 function handleCreate(req, res) {
+
+    if (userSessions[username] !== req.query.sessionKey) {
+        console.log("Not authenticated.");
+        return res.status(401).send("Session not valid. Signin first");
+    }
+
     console.log(`Request for create, with newPoem ${JSON.stringify(req.body)}, nr`, requestCounter++);
 
     const newPoem = req.body;
@@ -52,9 +76,15 @@ function handleCreate(req, res) {
 }
 
 function handleRemoveOneById(req, res) {
+    console.log(`Request for remove, with id ${idToRemove}, nr`, requestCounter++);
+
+    if (userSessions[username] !== req.query.sessionKey) {
+        console.log("Not authenticated.");
+        return res.status(401).send("Session not valid. Signin first");
+    }
+
     const idToRemove = req.params.id;
 
-    console.log(`Request for remove, with id ${idToRemove}, nr`, requestCounter++);
 
     const removedPoem = PoemModel.remove(Number(idToRemove));
 

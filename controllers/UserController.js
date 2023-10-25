@@ -2,10 +2,11 @@ const crypto = require("crypto");
 
 const UserModel = require("../models/UserModel");
 
-const userSessions = {};
+export const userSessions = {};
 
 function handleSignOut(req, res) {
     if (userSessions[username] !== req.query.sessionKey) {
+        console.log("Not authenticated.");
         return res.status(401).send("Session not valid. Signin first");
     }
 
@@ -20,7 +21,8 @@ function handleSignIn(req, res) {
     const isAuthenticated = UserModel.authenticateUser(username, password);
 
     if (!isAuthenticated) {
-        return res.status(401).send("Not authenticated");
+        console.log("Signin failed.");
+        return res.status(401).send("Invalid Credentials");
     }
 
     const sessionKey = crypto.randomBytes(20).toString('base64');
@@ -31,6 +33,11 @@ function handleSignIn(req, res) {
 }
 
 function handleGetAllUsers(req, res) {
+    if (userSessions[username] !== req.query.sessionKey) {
+        console.log("Not authenticated.");
+        return res.status(401).send("Session not valid. Signin first");
+    }
+
     res.send(UserModel.getUsers());
 }
 
@@ -42,6 +49,7 @@ function handleGetUserByUsername(req, res) {
     }
 
     if (userSessions[username] !== req.query.sessionKey) {
+        console.log("Not authenticated.");
         return res.status(401).send("Session not valid. Signin first");
     }
 
