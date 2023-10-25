@@ -1,5 +1,6 @@
 // TODO: add functions that handles requests regarding poems
 const PoemModel = require("../models/PoemModel");
+const {userSessions} = require("./UserController");
 
 let requestCounter = 0;
 
@@ -39,6 +40,10 @@ function handleEditOneById(req, res) {
 
 function handleCreate(req, res) {
     console.log(`Request for create, with newPoem ${JSON.stringify(req.body)}, nr`, requestCounter++);
+
+    if (!Object.values(userSessions).includes(req.query.sessionKey)) {
+        return res.status(401).send("Not authorized");
+    }
 
     const newPoem = req.body;
 

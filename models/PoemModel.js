@@ -1,26 +1,12 @@
-// TODO: add functions that manipulates data regarding poems
-const { set } = require("express/lib/application");
-const fs = require("fs");
-
-const poemDatabase = [];
-
-function getDatabase() {
-    const dbData = fs.readFileSync("poemDB.json", {encoding: "utf-8"});
-    return JSON.parse(dbData);
-}
-
-function setDatabase(data) {
-    const str = JSON.stringify(data);
-    fs.writeFileSync('poemDB.json', str);
-}
+const {getPoemsFromDB, setPoemsFromDB} = require("./utils");
 
 function showAll() {
-    const allPoems = getDatabase();
+    const allPoems = getPoemsFromDB();
     return allPoems;
 }
 
 function showOneById(id) {
-    const allPoems = getDatabase();
+    const allPoems = getPoemsFromDB();
 
     return allPoems.find(poem => poem.id === id);
 }
@@ -30,7 +16,7 @@ function editOneById(newPoem) {
         return false;
     }
 
-    const allPoems = getDatabase();
+    const allPoems = getPoemsFromDB();
     const poemToEdit = allPoems.find(poem => poem.id === newPoem.id);
 
     // change existing object with new changes
@@ -38,7 +24,7 @@ function editOneById(newPoem) {
     poemToEdit.content = newPoem.content;
     poemToEdit.author = newPoem.author;
 
-    setDatabase(allPoems);
+    setPoemsFromDB(allPoems);
 
     return poemToEdit;
 }
@@ -49,14 +35,14 @@ function create(newPoem) {
     }
 
     // Read in the database
-    const allPoems = getDatabase();
+    const allPoems = getPoemsFromDB();
     
     // Add poem to array
     const poemToAdd = { id: allPoems.length + 1, title: newPoem.title, content: newPoem.content, author: newPoem.author };
     allPoems.push(poemToAdd);
 
     // Set array as new database
-    setDatabase(allPoems);
+    setPoemsFromDB(allPoems);
 
     return poemToAdd;
 }
